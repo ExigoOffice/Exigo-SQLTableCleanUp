@@ -1,0 +1,5 @@
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.csprojResolveAssemblyReference.cache
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.CleanUp.resources
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.Properties.Resources.resources
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.csproj.GenerateResource.Cache
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\SQLTableCleanUp.exe.config

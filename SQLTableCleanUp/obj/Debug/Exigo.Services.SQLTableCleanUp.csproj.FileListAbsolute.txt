@@ -1,0 +1,12 @@
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\SQLTableCleanUp.exe.config
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\SQLTableCleanUp.exe
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\SQLTableCleanUp.pdb
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\Exigo.Data.dll
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\Exigo.Services.dll
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.CleanUp.resources
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.Properties.Resources.resources
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\Exigo.Services.SQLTableCleanUp.csproj.GenerateResource.Cache
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.exe
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\obj\Debug\SQLTableCleanUp.pdb
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\Newtonsoft.Json.dll
+c:\users\user\documents\visual studio 2015\Projects\SQLTableCleanUp\SQLTableCleanUp\bin\Debug\Newtonsoft.Json.xml

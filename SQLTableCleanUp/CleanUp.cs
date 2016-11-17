@@ -24,6 +24,8 @@ namespace SQLTableCleanUp
             public bool AllowJobs { get; set; }
             public bool AllowTransferMeter { get; set; }
             public bool AllowTransferBilling { get; set; }
+            public string ParentSync { get; set; }
+            public string ChildSync { get; set; }
         }
 
         public CleanUp()
@@ -63,7 +65,7 @@ namespace SQLTableCleanUp
                 //start up new jobs for new connection strings not in here
                 var tableMaps = InternalGetTableMaps(parent, config);
 
-                var count = SqlTableCleanUpUtil.CleanUpTables(tableMaps, parent, child1, "ParentSync", "ChildSync");
+                var count = SqlTableCleanUpUtil.CleanUpTables(tableMaps, parent, child1, items.ParentSync, items.ChildSync);
                 outputBox.AppendText($"{count} records were updated.\n");
             }
         }

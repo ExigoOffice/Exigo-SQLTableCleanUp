@@ -31,6 +31,7 @@
             this.cleanupBtn = new System.Windows.Forms.Button();
             this.outputBox = new System.Windows.Forms.RichTextBox();
             this.clearBtn = new System.Windows.Forms.Button();
+            this.reportOnlyMode = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // cleanupBtn
@@ -61,17 +62,31 @@
             this.clearBtn.UseVisualStyleBackColor = true;
             this.clearBtn.Click += new System.EventHandler(this.clearBtn_Click);
             // 
+            // reportOnlyMode
+            // 
+            this.reportOnlyMode.AutoSize = true;
+            this.reportOnlyMode.Checked = true;
+            this.reportOnlyMode.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.reportOnlyMode.Location = new System.Drawing.Point(522, 388);
+            this.reportOnlyMode.Name = "reportOnlyMode";
+            this.reportOnlyMode.Size = new System.Drawing.Size(109, 17);
+            this.reportOnlyMode.TabIndex = 3;
+            this.reportOnlyMode.Text = "Report only mode";
+            this.reportOnlyMode.UseVisualStyleBackColor = true;
+            // 
             // CleanUp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(691, 428);
+            this.Controls.Add(this.reportOnlyMode);
             this.Controls.Add(this.clearBtn);
             this.Controls.Add(this.outputBox);
             this.Controls.Add(this.cleanupBtn);
             this.Name = "CleanUp";
             this.Text = "SQL Table Clean-up Utility";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -80,6 +95,7 @@
         private System.Windows.Forms.Button cleanupBtn;
         private System.Windows.Forms.RichTextBox outputBox;
         private System.Windows.Forms.Button clearBtn;
+        private System.Windows.Forms.CheckBox reportOnlyMode;
     }
 }
 

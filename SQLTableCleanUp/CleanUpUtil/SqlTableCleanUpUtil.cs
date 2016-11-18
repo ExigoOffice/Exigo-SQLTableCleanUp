@@ -41,6 +41,11 @@ namespace Exigo.Services.SQLTableCleanUp
         //Max number of rows to compare at any given time
         private static int maxRows = 1000;
 
+        private static bool isReportOnly;
+
+        //Report generated
+        public static string SyncReport { get; set; }
+
         /// <summary>
         /// Method used to find differences between two given tables and remedying those differences
         /// </summary>
@@ -50,9 +55,11 @@ namespace Exigo.Services.SQLTableCleanUp
         /// <param name="parentSync">Parent sync schema name</param>
         /// <param name="childSync">Child sync schema name</param>
         /// <returns>Number of cleanups processed</returns>
-        public static int CleanUpTables(IEnumerable<TableMap> tableMaps, SqlConnection parentConn, SqlConnection childConn, string parentSync, string childSync)
+        public static int CleanUpTables(IEnumerable<TableMap> tableMaps, SqlConnection parentConn, SqlConnection childConn, string parentSync, string childSync, bool reportOnly, out string syncReport)
         {
             var count = 0;
+            isReportOnly = reportOnly;
+
             foreach (var tableMap in tableMaps)
             {
                 //Get parent and child tables from tableMap
@@ -111,13 +118,15 @@ namespace Exigo.Services.SQLTableCleanUp
                     }
 
                     //Sleep briefly to free up resources before resuming
-                    Thread.Sleep(500);
+                    //Thread.Sleep(500);
                 }
 
                 //Reset Sequence numbers of Parent and Child for next run
                 SetLastSequence(parentConn, parentSync, parentTable, 0);
                 SetLastSequence(childConn, childSync, childTable, 0);
             }
+
+            syncReport = SyncReport;
 
             //Return how many differences we found and fixed
             return count;
@@ -383,7 +392,7 @@ namespace Exigo.Services.SQLTableCleanUp
                 var childRowVersion = (long?)childRow?.Value ?? 0;
 
                 string cmd;
-                SqlCommand sqlCmd;
+                var sqlCmd = new SqlCommand();
 
                 //If row version is 0, we didn't have a match so an insert needs to happen
                 if (parentRowVersion == 0 || childRowVersion == 0)
@@ -391,20 +400,28 @@ namespace Exigo.Services.SQLTableCleanUp
                     if (parentRowVersion != 0)
                     {
                         //We found a parent that didn't have a matching child.
-                        var fromColumns = parentChild.Parent.Columns;
-                        cmd = InsertSqlCmd(tableMap, fromColumns, childTable, childConn);
+                        SyncReport += $"GUID: {entry.Key} has an entry in table {parentTable} but not in {childTable}.\n";
+                        if (!isReportOnly)
+                        {
+                            var fromColumns = parentChild.Parent.Columns;
+                            cmd = InsertSqlCmd(tableMap, fromColumns, childTable, childConn);
 
-                        //Insert into child
-                        sqlCmd = new SqlCommand(cmd, childConn);
+                            //Insert into child
+                            sqlCmd = new SqlCommand(cmd, childConn);
+                        }
                     }
                     else
                     {
                         //We found a child that didn't have a matching parent.
-                        var fromColumns = parentChild.Child.Columns;
-                        cmd = InsertSqlCmd(tableMap, fromColumns, parentTable, parentConn);
+                        SyncReport += $"GUID: {entry.Key} has an entry in table {childTable} but not in {parentTable}.\n";
+                        if (!isReportOnly)
+                        {
+                            var fromColumns = parentChild.Child.Columns;
+                            cmd = InsertSqlCmd(tableMap, fromColumns, parentTable, parentConn);
 
-                        //Insert into parent
-                        sqlCmd = new SqlCommand(cmd, parentConn);
+                            //Insert into parent
+                            sqlCmd = new SqlCommand(cmd, parentConn);
+                        }
                     }
                 }
                 else
@@ -413,26 +430,38 @@ namespace Exigo.Services.SQLTableCleanUp
                     if (parentRowVersion > childRowVersion)
                     {
                         //Parent is more up-to-date, update child
-                        var fromColumns = parentChild.Parent.Columns;
-                        var toColumns = parentChild.Child.Columns;
-                        cmd = UpdateSqlCmd(tableMap, fromColumns, toColumns, entry.Key, childTable, parentRowVersion, childConn);
+                        SyncReport += $@"GUID: {entry.Key} has a higher RowVersion of {parentRowVersion} in {parentTable} compared to {childRowVersion} in {childTable}.\n";
+                        if (!isReportOnly)
+                        {
+                            var fromColumns = parentChild.Parent.Columns;
+                            var toColumns = parentChild.Child.Columns;
+                            cmd = UpdateSqlCmd(tableMap, fromColumns, toColumns, entry.Key, childTable, parentRowVersion, childConn);
 
-                        //Update the child
-                        sqlCmd = new SqlCommand(cmd, childConn);
+                            //Update the child
+                            sqlCmd = new SqlCommand(cmd, childConn);
+                        }
                     }
                     else
                     {
                         //Child is more up-to-date, update parent
-                        var fromColumns = parentChild.Child.Columns;
-                        var toColumns = parentChild.Parent.Columns;
-                        cmd = UpdateSqlCmd(tableMap, fromColumns, toColumns, entry.Key, parentTable, childRowVersion, parentConn);
+                        SyncReport += $@"GUID: {entry.Key} has a higher RowVersion of {childRowVersion} in {childTable} compared to {parentRowVersion} in {parentTable}.\n";
+                        if (!isReportOnly)
+                        {
+                            var fromColumns = parentChild.Child.Columns;
+                            var toColumns = parentChild.Parent.Columns;
+                            cmd = UpdateSqlCmd(tableMap, fromColumns, toColumns, entry.Key, parentTable, childRowVersion, parentConn);
 
-                        //Update the parent
-                        sqlCmd = new SqlCommand(cmd, parentConn);
+                            //Update the parent
+                            sqlCmd = new SqlCommand(cmd, parentConn);
+                        }
                     }
                 }
 
-                sqlCmd.ExecuteNonQuery();
+                if (!isReportOnly)
+                {
+                    sqlCmd.ExecuteNonQuery();
+                    SyncReport += "Differences were remedied.\n";
+                }
             }
         }
 

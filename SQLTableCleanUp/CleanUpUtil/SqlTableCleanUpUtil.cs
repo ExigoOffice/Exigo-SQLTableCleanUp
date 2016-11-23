@@ -59,6 +59,7 @@ namespace Exigo.Services.SQLTableCleanUp
         {
             var count = 0;
             isReportOnly = reportOnly;
+            SyncReport = "";
 
             foreach (var tableMap in tableMaps)
             {
@@ -400,7 +401,7 @@ namespace Exigo.Services.SQLTableCleanUp
                     if (parentRowVersion != 0)
                     {
                         //We found a parent that didn't have a matching child.
-                        SyncReport += $"GUID: {entry.Key} has an entry in table {parentTable} but not in {childTable}.\n";
+                        SyncReport += $"GUID: {entry.Key} has an entry in table {parentTable} but not in {childTable}" + " \n";
                         if (!isReportOnly)
                         {
                             var fromColumns = parentChild.Parent.Columns;
@@ -413,7 +414,7 @@ namespace Exigo.Services.SQLTableCleanUp
                     else
                     {
                         //We found a child that didn't have a matching parent.
-                        SyncReport += $"GUID: {entry.Key} has an entry in table {childTable} but not in {parentTable}.\n";
+                        SyncReport += $"GUID: {entry.Key} has an entry in table {childTable} but not in {parentTable}" + " \n";
                         if (!isReportOnly)
                         {
                             var fromColumns = parentChild.Child.Columns;
@@ -430,7 +431,7 @@ namespace Exigo.Services.SQLTableCleanUp
                     if (parentRowVersion > childRowVersion)
                     {
                         //Parent is more up-to-date, update child
-                        SyncReport += $@"GUID: {entry.Key} has a higher RowVersion of {parentRowVersion} in {parentTable} compared to {childRowVersion} in {childTable}.\n";
+                        SyncReport += $@"GUID: {entry.Key} has a higher RowVersion of {parentRowVersion} in {parentTable} compared to {childRowVersion} in {childTable}" + " \n";
                         if (!isReportOnly)
                         {
                             var fromColumns = parentChild.Parent.Columns;
@@ -444,7 +445,7 @@ namespace Exigo.Services.SQLTableCleanUp
                     else
                     {
                         //Child is more up-to-date, update parent
-                        SyncReport += $@"GUID: {entry.Key} has a higher RowVersion of {childRowVersion} in {childTable} compared to {parentRowVersion} in {parentTable}.\n";
+                        SyncReport += $@"GUID: {entry.Key} has a higher RowVersion of {childRowVersion} in {childTable} compared to {parentRowVersion} in {parentTable}" + " \n";
                         if (!isReportOnly)
                         {
                             var fromColumns = parentChild.Child.Columns;
@@ -460,7 +461,7 @@ namespace Exigo.Services.SQLTableCleanUp
                 if (!isReportOnly)
                 {
                     sqlCmd.ExecuteNonQuery();
-                    SyncReport += "Differences were remedied.\n";
+                    SyncReport += "Differences were remedied \n";
                 }
             }
         }
@@ -685,6 +686,9 @@ namespace Exigo.Services.SQLTableCleanUp
         /// <returns>Unique Key</returns>
         private static string GenerateUniqueKey(SqlConnection conn, string table, string columnName, string value, Type type)
         {
+            //HOLDLOCK
+            var holdlock = isReportOnly ? "" : "WITH (HOLDLOCK)";
+
             //Check to see if we have current value as a primary key already
             var keyCount = new SqlCommand($@"SELECT count(*) 
                                              FROM {table} 
@@ -695,7 +699,7 @@ namespace Exigo.Services.SQLTableCleanUp
             if ((int)keyCount > 0)
             {
                 if (type == typeof(int) || type == typeof(long))
-                    value = ((int) new SqlCommand($@"SELECT TOP 1 {columnName} FROM {table} WITH (HOLDLOCK) ORDER BY {columnName} DESC", conn).ExecuteScalar() + 1).ToString();
+                    value = ((int) new SqlCommand($@"SELECT TOP 1 {columnName} FROM {table} {holdlock} ORDER BY {columnName} DESC", conn).ExecuteScalar() + 1).ToString();
                 else
                 {
                     var randomString = "";
@@ -711,7 +715,7 @@ namespace Exigo.Services.SQLTableCleanUp
 
                         //Check to see if key is there
                         var keys = new SqlCommand($@"SELECT count(*) 
-                                                     FROM {table} WITH (HOLDLOCK) 
+                                                     FROM {table} {holdlock} 
                                                      WHERE {columnName} = '{randomString}'", conn).ExecuteScalar();
 
                         //If it isn't there break the loop and continue

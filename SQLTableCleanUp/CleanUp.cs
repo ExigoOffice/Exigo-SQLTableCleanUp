@@ -65,7 +65,7 @@ namespace SQLTableCleanUp
                 //start up new jobs for new connection strings not in here
                 var tableMaps = InternalGetTableMaps(parent, config);
 
-                var syncReport = "";
+                string syncReport;
                 var count = SqlTableCleanUpUtil.CleanUpTables(tableMaps, parent, child1, items.ParentSync, items.ChildSync, reportOnlyMode.Checked, out syncReport);
                 outputBox.AppendText(syncReport);
                 outputBox.AppendText($"{count} total differences were found.\n\n");

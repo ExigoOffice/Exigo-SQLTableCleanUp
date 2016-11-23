@@ -686,20 +686,17 @@ namespace Exigo.Services.SQLTableCleanUp
         /// <returns>Unique Key</returns>
         private static string GenerateUniqueKey(SqlConnection conn, string table, string columnName, string value, Type type)
         {
-            //HOLDLOCK
-            var holdlock = isReportOnly ? "" : "WITH (HOLDLOCK)";
-
             //Check to see if we have current value as a primary key already
             var keyCount = new SqlCommand($@"SELECT count(*) 
                                              FROM {table} 
                                              WHERE {columnName} = {value}", conn).ExecuteScalar();
-            
+
             //If there's a match, generate a unique key with (HOLDLOCK) which will
             //hopefully stop another task from using our generated key.
             if ((int)keyCount > 0)
             {
                 if (type == typeof(int) || type == typeof(long))
-                    value = ((int) new SqlCommand($@"SELECT TOP 1 {columnName} FROM {table} {holdlock} ORDER BY {columnName} DESC", conn).ExecuteScalar() + 1).ToString();
+                    value = ((int)new SqlCommand($@"SELECT TOP 1 {columnName} FROM {table} WITH (HOLDLOCK) ORDER BY {columnName} DESC", conn).ExecuteScalar() + 1).ToString();
                 else
                 {
                     var randomString = "";
@@ -708,18 +705,18 @@ namespace Exigo.Services.SQLTableCleanUp
                     //If we find one that isn't used, set value and move on
                     //Else throw an Exception
                     var tries = 1000;
-                    for(int i = 0; i < tries; i++)
+                    for (int i = 0; i < tries; i++)
                     {
                         //Generate random key
                         randomString = GenerateRandomString(value.Replace("'", "").Length);
 
                         //Check to see if key is there
                         var keys = new SqlCommand($@"SELECT count(*) 
-                                                     FROM {table} {holdlock} 
+                                                     FROM {table} WITH (HOLDLOCK) 
                                                      WHERE {columnName} = '{randomString}'", conn).ExecuteScalar();
 
                         //If it isn't there break the loop and continue
-                        if ((int) keys == 0) break;
+                        if ((int)keys == 0) break;
 
                         //If we've reached the max amount of tries and we STILL couldn't find a unique key, throw an exception
                         //An easy fix would be to increase the length of the random key generated
